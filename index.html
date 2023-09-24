@@ -119,6 +119,15 @@
                 alert("Name and Message are required.");
                 return;
             }
+            if(name.length > 16){
+                alert("Name cannot be more than 16 characters");
+                return;
+            }
+
+            if(message.length > 16){
+                alert("Message cannot be more than 16 characters");
+                return;
+            }
 
             // Check if message has already been sent
             var sentMessages = JSON.parse(localStorage.getItem('sentMessages')) || [];
@@ -143,7 +152,7 @@
             };
 
             // Send post request
-            document.getElementById("submitButton").innerHTML = "Loading"
+            document.getElementById("submitButton").value = "Loading"
             fetch('https://esp32.up.railway.app/queue/add', {
                 method: 'POST',
                 headers: {
@@ -152,14 +161,14 @@
                 body: JSON.stringify(payload)
             })
             .then(function (response) {
-                document.getElementById("submitButton").innerHTML = "Send Message"
+                document.getElementById("submitButton").value = "Send Message"
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
                 return response.json();
             })
             .then(function (data) {
-                document.getElementById("submitButton").innerHTML = "Send Message"
+                document.getElementById("submitButton").value = "Send Message"
                 alert('Message sent successfully');
                 // Store message in local storage
                 sentMessages.push({ message: message, name: name });
