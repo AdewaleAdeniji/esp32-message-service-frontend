@@ -72,13 +72,9 @@
           type="text"
           id="message"
           name="message"
-          placeholder="Your Message (Max 16 characters)"
-          maxlength="16"
+          placeholder="Your Message"
           required
         /><br />
-        <div class="char-limit">
-          Character limit: <span id="charCount">0</span>/16
-        </div>
         <br />
         <input type="submit" value="Send Message" id="submitButton"/>
       </form>
@@ -89,9 +85,9 @@
       document
         .getElementById("name")
         .addEventListener("input", updateCharCountName);
-      document
-        .getElementById("message")
-        .addEventListener("input", updateCharCount);
+    //   document
+    //     .getElementById("message")
+    //     .addEventListener("input", updateCharCount);
 
       function updateCharCountName() {
         var nameLength = document.getElementById("name").value.length;
@@ -124,10 +120,6 @@
                 return;
             }
 
-            if(message.length > 16){
-                alert("Message cannot be more than 16 characters");
-                return;
-            }
 
             // Check if message has already been sent
             var sentMessages = JSON.parse(localStorage.getItem('sentMessages')) || [];
