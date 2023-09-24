@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Send Message to Feranmi</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin: 50px;
+      }
+
+      .container {
+        max-width: 400px;
+        margin: auto;
+        background-color: #f4f4f4;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+        border: 2px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+      }
+
+      .char-limit {
+        text-align: left;
+        color: #555;
+        font-size: 14px;
+      }
+
+      input[type="submit"] {
+        background-color: #4caf50;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      input[type="submit"]:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h2>Send Message to Feranmi</h2>
+      <form id="messageForm">
+        <input
+          type="text"
+          id="name"
+          name="name"
+          placeholder="Your Name (Max 16 characters)"
+          maxlength="16"
+          required
+        /><br />
+        <div class="char-limit">
+          Character limit: <span id="charCountName">0</span>/16
+        </div>
+        <br />
+        <input
+          type="text"
+          id="message"
+          name="message"
+          placeholder="Your Message (Max 16 characters)"
+          maxlength="16"
+          required
+        /><br />
+        <div class="char-limit">
+          Character limit: <span id="charCount">0</span>/16
+        </div>
+        <br />
+        <input type="submit" value="Send Message" id="submitButton"/>
+      </form>
+    </div>
+
+    <script>
+      // Update character count
+      document
+        .getElementById("name")
+        .addEventListener("input", updateCharCountName);
+      document
+        .getElementById("message")
+        .addEventListener("input", updateCharCount);
+
+      function updateCharCountName() {
+        var nameLength = document.getElementById("name").value.length;
+
+        document.getElementById("charCountName").innerText =
+          nameLength;
+      }
+      function updateCharCount() {
+        var messageLength = document.getElementById("message").value.length;
+
+        document.getElementById("charCount").innerText = messageLength;
+      }
+      document.getElementById('messageForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            // Get user agent
+            var userAgent = navigator.userAgent;
+
+            // Get form values
+            var name = document.getElementById('name').value;
+            var message = document.getElementById('message').value;
+
+            // Validate inputs
+            if (!name || !message) {
+                alert("Name and Message are required.");
+                return;
+            }
+
+            // Check if message has already been sent
+            var sentMessages = JSON.parse(localStorage.getItem('sentMessages')) || [];
+            var messageExists = sentMessages.some(function (item) {
+                return item.message === message;
+            });
+
+            if (messageExists) {
+                alert("You've already sent this message.");
+                return;
+            }
+
+            // Remove emojis and extra spaces
+            name = name.replace(/\p{Emoji}/gu, '');
+            message = message.replace(/\p{Emoji}/gu, '');
+
+            // Create payload
+            var payload = {
+                message: message,
+                name: name,
+                metadata: userAgent
+            };
+
+            // Send post request
+            document.getElementById("submitButton").innerHTML = "Loading"
+            fetch('https://esp32.up.railway.app/queue/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(function (response) {
+                document.getElementById("submitButton").innerHTML = "Send Message"
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(function (data) {
+                document.getElementById("submitButton").innerHTML = "Send Message"
+                alert('Message sent successfully');
+                // Store message in local storage
+                sentMessages.push({ message: message, name: name });
+                localStorage.setItem('sentMessages', JSON.stringify(sentMessages));
+            })
+            .catch(function (error) {
+                document.getElementById("submitButton").innerHTML = "Send Message"
+                console.error('Error:', error);
+                alert('Error sending message');
+            });
+        });
+    </script>
+  </body>
+</html>
